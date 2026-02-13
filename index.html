@@ -1,125 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>planA</title>
-
-<style>
-*{box-sizing:border-box;font-family:'Segoe UI',sans-serif}
-
-body{
-  margin:0;
-  height:100vh;
-  background:linear-gradient(135deg,#ff9eb5,#ffc2d1);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  overflow:hidden;
-  opacity:0;
-  animation:fadeIn 1s ease forwards;
-}
-
-@keyframes fadeIn{to{opacity:1}}
-
-.container{
-  text-align:center;
-  padding:30px;
-  background:rgba(255,255,255,0.25);
-  backdrop-filter:blur(12px);
-  border-radius:24px;
-  box-shadow:0 10px 40px rgba(0,0,0,0.15);
-  width:320px;
-  transition:.4s ease;
-}
-
-h1{
-  font-size:1.8rem;
-  margin-bottom:40px;
-  color:#fff;
-  text-shadow:0 4px 10px rgba(0,0,0,0.2);
-}
-
-.buttons{
-  position:relative;
-  height:220px;
-  transition:.4s ease;
-}
-
-button{
-  padding:14px 28px;
-  font-size:1.05rem;
-  border:none;
-  border-radius:16px;
-  cursor:pointer;
-  position:absolute;
-  transition:all .35s cubic-bezier(.2,.8,.2,1);
-  outline:none;
-  -webkit-tap-highlight-color: transparent;
-}
-
-button:active{
-  transform:scale(.92);
-}
-
-#yesBtn{
-  background:#ff4d6d;
-  color:white;
-  left:50%;
-  top:20px;
-  transform:translateX(-50%);
-  box-shadow:0 6px 20px rgba(255,77,109,.5);
-  animation:glow 2s infinite alternate;
-}
-
-@keyframes glow{
-  from{box-shadow:0 0 10px #ff4d6d}
-  to{box-shadow:0 0 25px #ff4d6d}
-}
-
-#noBtn{
-  background:#444;
-  color:white;
-  left:50%;
-  top:120px;
-  transform:translateX(-50%);
-}
-
-.heart{
-  position:fixed;
-  bottom:-20px;
-  animation:floatUp 4s linear forwards;
-  pointer-events:none;
-}
-
-@keyframes floatUp{
-  from{
-    transform:translateY(0) scale(1) rotate(var(--rot));
-    opacity:1
-  }
-  to{
-    transform:translateY(-100vh) scale(1.5) rotate(var(--rot));
-    opacity:0
-  }
-}
-</style>
-</head>
-
-<body>
-
-<div class="container">
-  <h1 id="text">Will you be my Valentine? 💖</h1>
-  <div class="buttons" id="buttons">
-    <button id="yesBtn">Yes</button>
-    <button id="noBtn">No</button>
-  </div>
-</div>
-
-<!-- AUDIO -->
-<audio id="bgMusic" loop></audio>
-<audio id="noSound"></audio>
-<audio id="yesSound"></audio>
-
 <script>
 const yesBtn = document.getElementById("yesBtn");
 const noBtn = document.getElementById("noBtn");
@@ -130,17 +8,32 @@ const bgMusic = document.getElementById("bgMusic");
 const noSound = document.getElementById("noSound");
 const yesSound = document.getElementById("yesSound");
 
-// 🔥 PUT YOUR RAW GITHUB LINKS HERE
+/* ===== YOUR GITHUB RAW LINKS ===== */
 bgMusic.src = "https://raw.githubusercontent.com/cj22919377/planA/main/romantic.mp3";
 noSound.src = "https://raw.githubusercontent.com/cj22919377/planA/main/no.mp3";
 yesSound.src = "https://raw.githubusercontent.com/cj22919377/planA/main/yes.mp3";
 
+/* ===== SETTINGS ===== */
+bgMusic.loop = true;        // 🔁 LOOP FOREVER
 bgMusic.volume = 0.6;
 noSound.volume = 0.7;
 yesSound.volume = 0.8;
 
 let yesScale = 1;
+let musicStarted = false;
 
+/* ===== Start Music On First Interaction ===== */
+function startMusic(){
+  if(!musicStarted){
+    bgMusic.play().catch(()=>{});
+    musicStarted = true;
+  }
+}
+
+document.addEventListener("click", startMusic, { once:true });
+document.addEventListener("touchstart", startMusic, { once:true });
+
+/* ===== No Button Text Cycle ===== */
 const noTexts = [
   "whyy","nope","try again","theres no other choice",
   "you cant get away from this","haha nope",
@@ -149,29 +42,27 @@ const noTexts = [
 ];
 let noIndex = 0;
 
-/* Start music on first interaction */
-document.body.addEventListener("click", () => {
-  if(bgMusic.paused){
-    bgMusic.play();
-  }
-},{ once:true });
-
-/* Soft pop for hearts */
+/* ===== Heart Pop Sound ===== */
 function heartPop(){
   const ctx = new (window.AudioContext||window.webkitAudioContext)();
   const osc = ctx.createOscillator();
   const gain = ctx.createGain();
+
   osc.type="sine";
   osc.frequency.setValueAtTime(600,ctx.currentTime);
   osc.frequency.exponentialRampToValueAtTime(200,ctx.currentTime+.15);
+
   gain.gain.setValueAtTime(.2,ctx.currentTime);
   gain.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+.15);
+
   osc.connect(gain);
   gain.connect(ctx.destination);
+
   osc.start();
   osc.stop(ctx.currentTime+.15);
 }
 
+/* ===== NO BUTTON ===== */
 noBtn.addEventListener("click", () => {
 
   noSound.currentTime = 0;
@@ -206,11 +97,11 @@ noBtn.addEventListener("click", () => {
   noBtn.style.top = y+"px";
 });
 
+/* ===== YES BUTTON ===== */
 yesBtn.addEventListener("click", () => {
 
   yesSound.currentTime = 0;
   yesSound.play();
-  bgMusic.pause();
 
   buttons.style.opacity=0;
   setTimeout(()=>buttons.remove(),400);
@@ -220,17 +111,18 @@ yesBtn.addEventListener("click", () => {
   setInterval(()=>{
     const heart=document.createElement("div");
     heart.className="heart";
+
     const hearts=["💖","💗","🩷","💝","💕"];
     heart.textContent=hearts[Math.floor(Math.random()*hearts.length)];
+
     heart.style.setProperty("--rot",(Math.random()*240-120)+"deg");
     heart.style.left=Math.random()*100+"vw";
     heart.style.fontSize=20+Math.random()*20+"px";
+
     document.body.appendChild(heart);
     heartPop();
+
     setTimeout(()=>heart.remove(),4000);
   },250);
 });
 </script>
-
-</body>
-</html>
