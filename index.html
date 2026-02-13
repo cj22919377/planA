@@ -1,236 +1,313 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>planA</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>planA · black blur proceed</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Segoe UI', sans-serif;
+    }
 
-<style>
-*{box-sizing:border-box;font-family:'Segoe UI',sans-serif}
+    body {
+      margin: 0;
+      height: 100vh;
+      background: linear-gradient(135deg, #ff9eb5, #ffc2d1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      opacity: 0;
+      animation: fadeIn 1s ease forwards;
+    }
 
-body{
-  margin:0;
-  height:100vh;
-  background:linear-gradient(135deg,#ff9eb5,#ffc2d1);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  overflow:hidden;
-  opacity:0;
-  animation:fadeIn 1s ease forwards;
-}
+    @keyframes fadeIn {
+      to { opacity: 1; }
+    }
 
-@keyframes fadeIn{to{opacity:1}}
+    /* main valentine container */
+    .container {
+      text-align: center;
+      padding: 30px;
+      background: rgba(255, 255, 255, 0.25);
+      backdrop-filter: blur(12px);
+      border-radius: 24px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+      width: 320px;
+      transition: .4s ease;
+    }
 
-.container{
-  text-align:center;
-  padding:30px;
-  background:rgba(255,255,255,0.25);
-  backdrop-filter:blur(12px);
-  border-radius:24px;
-  box-shadow:0 10px 40px rgba(0,0,0,0.15);
-  width:320px;
-  transition:.4s ease;
-}
+    h1 {
+      font-size: 1.8rem;
+      margin-bottom: 40px;
+      color: #fff;
+      text-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    }
 
-h1{
-  font-size:1.8rem;
-  margin-bottom:40px;
-  color:#fff;
-  text-shadow:0 4px 10px rgba(0,0,0,0.2);
-}
+    .buttons {
+      position: relative;
+      height: 220px;
+      transition: .4s ease;
+    }
 
-.buttons{
-  position:relative;
-  height:220px;
-  transition:.4s ease;
-}
+    button {
+      padding: 14px 28px;
+      font-size: 1.05rem;
+      border: none;
+      border-radius: 16px;
+      cursor: pointer;
+      position: absolute;
+      transition: all .35s cubic-bezier(.2, .8, .2, 1);
+      outline: none;
+      -webkit-tap-highlight-color: transparent;
+    }
 
-button{
-  padding:14px 28px;
-  font-size:1.05rem;
-  border:none;
-  border-radius:16px;
-  cursor:pointer;
-  position:absolute;
-  transition:all .35s cubic-bezier(.2,.8,.2,1);
-  outline:none;
-  -webkit-tap-highlight-color: transparent;
-}
+    button:active {
+      transform: scale(.92);
+    }
 
-button:active{
-  transform:scale(.92);
-}
+    #yesBtn {
+      background: #ff4d6d;
+      color: white;
+      left: 50%;
+      top: 20px;
+      transform: translateX(-50%);
+      box-shadow: 0 6px 20px rgba(255, 77, 109, .5);
+      animation: glow 2s infinite alternate;
+    }
 
-#yesBtn{
-  background:#ff4d6d;
-  color:white;
-  left:50%;
-  top:20px;
-  transform:translateX(-50%);
-  box-shadow:0 6px 20px rgba(255,77,109,.5);
-  animation:glow 2s infinite alternate;
-}
+    @keyframes glow {
+      from { box-shadow: 0 0 10px #ff4d6d; }
+      to { box-shadow: 0 0 25px #ff4d6d; }
+    }
 
-@keyframes glow{
-  from{box-shadow:0 0 10px #ff4d6d}
-  to{box-shadow:0 0 25px #ff4d6d}
-}
+    #noBtn {
+      background: #444;
+      color: white;
+      left: 50%;
+      top: 120px;
+      transform: translateX(-50%);
+    }
 
-#noBtn{
-  background:#444;
-  color:white;
-  left:50%;
-  top:120px;
-  transform:translateX(-50%);
-}
+    .heart {
+      position: fixed;
+      bottom: -20px;
+      animation: floatUp 4s linear forwards;
+      pointer-events: none;
+    }
 
-.heart{
-  position:fixed;
-  bottom:-20px;
-  animation:floatUp 4s linear forwards;
-  pointer-events:none;
-}
+    @keyframes floatUp {
+      from {
+        transform: translateY(0) scale(1) rotate(var(--rot));
+        opacity: 1;
+      }
+      to {
+        transform: translateY(-100vh) scale(1.5) rotate(var(--rot));
+        opacity: 0;
+      }
+    }
 
-@keyframes floatUp{
-  from{
-    transform:translateY(0) scale(1) rotate(var(--rot));
-    opacity:1
-  }
-  to{
-    transform:translateY(-100vh) scale(1.5) rotate(var(--rot));
-    opacity:0
-  }
-}
-</style>
+    /* ===== BLACK BLUR PROCEED OVERLAY ===== */
+    .proceed-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      /* deep black background with blur — legit black */
+      background: rgba(0, 0, 0, 0.75);        /* rich black, semi-transparent */
+      backdrop-filter: blur(14px) saturate(180%);
+      -webkit-backdrop-filter: blur(14px) saturate(180%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      cursor: pointer;
+      transition: opacity 0.5s ease-in-out;
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    /* frame remains light and crisp to contrast against black */
+    .proceed-frame {
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      border: 2px solid rgba(255, 255, 255, 0.8);
+      border-radius: 60px;
+      padding: 22px 58px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.3) inset;
+      font-size: 2.2rem;
+      font-weight: 700;
+      letter-spacing: 4px;
+      color: white;
+      text-shadow: 0 4px 15px #ff9eb5, 0 0 25px rgba(255, 77, 109, 0.7);
+      transition: transform 0.2s;
+      line-height: 1.2;
+      white-space: nowrap;
+    }
+
+    .proceed-overlay:hover .proceed-frame {
+      transform: scale(1.02);
+    }
+
+    .proceed-overlay.fade-out {
+      opacity: 0;
+      pointer-events: none;
+    }
+  </style>
 </head>
-
 <body>
 
-<div class="container">
-  <h1 id="text">Will you be my Valentine? 💖</h1>
-  <div class="buttons" id="buttons">
-    <button id="yesBtn">Yes</button>
-    <button id="noBtn">No</button>
+  <!-- BLACK BLUR OVERLAY "click to proceed" -->
+  <div id="proceedOverlay" class="proceed-overlay">
+    <div class="proceed-frame">click to proceed</div>
   </div>
-</div>
 
-<!-- AUDIO -->
-<audio id="bgMusic" loop></audio>
-<audio id="noSound"></audio>
-<audio id="yesSound"></audio>
+  <!-- main valentine content (hidden behind overlay until click) -->
+  <div class="container">
+    <h1 id="text">Will you be my Valentine? 💖</h1>
+    <div class="buttons" id="buttons">
+      <button id="yesBtn">Yes</button>
+      <button id="noBtn">No</button>
+    </div>
+  </div>
 
-<script>
-const yesBtn = document.getElementById("yesBtn");
-const noBtn = document.getElementById("noBtn");
-const buttons = document.getElementById("buttons");
-const text = document.getElementById("text");
+  <!-- AUDIO (hidden) -->
+  <audio id="bgMusic" loop></audio>
+  <audio id="noSound"></audio>
+  <audio id="yesSound"></audio>
 
-const bgMusic = document.getElementById("bgMusic");
-const noSound = document.getElementById("noSound");
-const yesSound = document.getElementById("yesSound");
+  <script>
+    (function() {
+      // existing elements
+      const yesBtn = document.getElementById("yesBtn");
+      const noBtn = document.getElementById("noBtn");
+      const buttons = document.getElementById("buttons");
+      const text = document.getElementById("text");
 
-// 🔥 PUT YOUR RAW GITHUB LINKS HERE
-bgMusic.src = "https://raw.githubusercontent.com/cj22919377/planA/main/romantic.mp3";
-noSound.src = "https://raw.githubusercontent.com/cj22919377/planA/main/no.mp3";
-yesSound.src = "https://raw.githubusercontent.com/cj22919377/planA/main/yes.mp3";
+      const bgMusic = document.getElementById("bgMusic");
+      const noSound = document.getElementById("noSound");
+      const yesSound = document.getElementById("yesSound");
 
-bgMusic.volume = 0.6;
-noSound.volume = 0.7;
-yesSound.volume = 0.8;
+      // raw github audio links
+      bgMusic.src = "https://raw.githubusercontent.com/cj22919377/planA/main/romantic.mp3";
+      noSound.src = "https://raw.githubusercontent.com/cj22919377/planA/main/no.mp3";
+      yesSound.src = "https://raw.githubusercontent.com/cj22919377/planA/main/yes.mp3";
 
-let yesScale = 1;
+      bgMusic.volume = 0.6;
+      noSound.volume = 0.7;
+      yesSound.volume = 0.8;
 
-const noTexts = [
-  "whyy","nope","try again","theres no other choice",
-  "you cant get away from this","haha nope",
-  "are u kidding me","fine...","SIKE",
-  "whatever","choose yess"
-];
-let noIndex = 0;
+      let yesScale = 1;
 
-/* Start music on first interaction */
-document.body.addEventListener("click", () => {
-  if(bgMusic.paused){
-    bgMusic.play();
-  }
-},{ once:true });
+      const noTexts = [
+        "whyy","nope","try again","theres no other choice",
+        "you cant get away from this","haha nope",
+        "are u kidding me","fine...","SIKE",
+        "whatever","choose yess"
+      ];
+      let noIndex = 0;
 
-/* Soft pop for hearts */
-function heartPop(){
-  const ctx = new (window.AudioContext||window.webkitAudioContext)();
-  const osc = ctx.createOscillator();
-  const gain = ctx.createGain();
-  osc.type="sine";
-  osc.frequency.setValueAtTime(600,ctx.currentTime);
-  osc.frequency.exponentialRampToValueAtTime(200,ctx.currentTime+.15);
-  gain.gain.setValueAtTime(.2,ctx.currentTime);
-  gain.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+.15);
-  osc.connect(gain);
-  gain.connect(ctx.destination);
-  osc.start();
-  osc.stop(ctx.currentTime+.15);
-}
+      // music starts on first body click (bubbles from overlay too)
+      document.body.addEventListener("click", () => {
+        if (bgMusic.paused) {
+          bgMusic.play().catch(e => console.log("autoplay blocked"));
+        }
+      }, { once: true });
 
-noBtn.addEventListener("click", () => {
+      // soft pop for hearts
+      function heartPop() {
+        try {
+          const ctx = new (window.AudioContext || window.webkitAudioContext)();
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = "sine";
+          osc.frequency.setValueAtTime(600, ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(200, ctx.currentTime + 0.15);
+          gain.gain.setValueAtTime(0.2, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start();
+          osc.stop(ctx.currentTime + 0.15);
+        } catch (e) {}
+      }
 
-  noSound.currentTime = 0;
-  noSound.play();
+      // noBtn runaway
+      noBtn.addEventListener("click", () => {
+        noSound.currentTime = 0;
+        noSound.play();
 
-  noBtn.textContent = noTexts[noIndex];
-  noIndex = (noIndex + 1) % noTexts.length;
+        noBtn.textContent = noTexts[noIndex];
+        noIndex = (noIndex + 1) % noTexts.length;
 
-  yesScale = Math.min(yesScale + .15, 2);
-  yesBtn.style.transform = `translateX(-50%) scale(${yesScale})`;
+        yesScale = Math.min(yesScale + 0.15, 2);
+        yesBtn.style.transform = `translateX(-50%) scale(${yesScale})`;
 
-  const area = buttons.getBoundingClientRect();
-  const noRect = noBtn.getBoundingClientRect();
-  const yesRect = yesBtn.getBoundingClientRect();
+        const area = buttons.getBoundingClientRect();
+        const noRect = noBtn.getBoundingClientRect();
+        const yesRect = yesBtn.getBoundingClientRect();
 
-  let x,y,safe=false;
+        let x, y, safe = false;
+        while (!safe) {
+          x = Math.random() * (area.width - noRect.width);
+          y = Math.random() * (area.height - noRect.height);
 
-  while(!safe){
-    x = Math.random()*(area.width-noRect.width);
-    y = Math.random()*(area.height-noRect.height);
+          const overlap =
+            x < (yesRect.left - area.left + yesRect.width) &&
+            x + noRect.width > (yesRect.left - area.left) &&
+            y < (yesRect.top - area.top + yesRect.height) &&
+            y + noRect.height > (yesRect.top - area.top);
 
-    const overlap =
-      x < (yesRect.left-area.left+yesRect.width) &&
-      x+noRect.width > (yesRect.left-area.left) &&
-      y < (yesRect.top-area.top+yesRect.height) &&
-      y+noRect.height > (yesRect.top-area.top);
+          if (!overlap) safe = true;
+        }
 
-    if(!overlap) safe=true;
-  }
+        noBtn.style.left = x + "px";
+        noBtn.style.top = y + "px";
+      });
 
-  noBtn.style.left = x+"px";
-  noBtn.style.top = y+"px";
-});
+      // yesBtn celebration
+      yesBtn.addEventListener("click", () => {
+        yesSound.currentTime = 0;
+        yesSound.play();
+        bgMusic.pause();
 
-yesBtn.addEventListener("click", () => {
+        buttons.style.opacity = 0;
+        setTimeout(() => buttons.remove(), 400);
 
-  yesSound.currentTime = 0;
-  yesSound.play();
-  bgMusic.pause();
+        text.textContent = "i love youuu !! 💞";
 
-  buttons.style.opacity=0;
-  setTimeout(()=>buttons.remove(),400);
+        setInterval(() => {
+          const heart = document.createElement("div");
+          heart.className = "heart";
+          const hearts = ["💖", "💗", "🩷", "💝", "💕"];
+          heart.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+          heart.style.setProperty("--rot", (Math.random() * 240 - 120) + "deg");
+          heart.style.left = Math.random() * 100 + "vw";
+          heart.style.fontSize = 20 + Math.random() * 20 + "px";
+          document.body.appendChild(heart);
+          heartPop();
+          setTimeout(() => heart.remove(), 4000);
+        }, 250);
+      });
 
-  text.textContent="i love youuu !! 💞";
+      // ---------- BLACK OVERLAY HANDLER (click to fade) ----------
+      const overlay = document.getElementById('proceedOverlay');
+      overlay.addEventListener('click', function fadeAndRemove(e) {
+        overlay.classList.add('fade-out');
+        overlay.addEventListener('transitionend', function onTransitionEnd() {
+          if (overlay.parentNode) overlay.remove();
+        }, { once: true });
+        // fallback
+        setTimeout(() => {
+          if (overlay.parentNode) overlay.remove();
+        }, 600);
+      }, { once: true }); // only once
 
-  setInterval(()=>{
-    const heart=document.createElement("div");
-    heart.className="heart";
-    const hearts=["💖","💗","🩷","💝","💕"];
-    heart.textContent=hearts[Math.floor(Math.random()*hearts.length)];
-    heart.style.setProperty("--rot",(Math.random()*240-120)+"deg");
-    heart.style.left=Math.random()*100+"vw";
-    heart.style.fontSize=20+Math.random()*20+"px";
-    document.body.appendChild(heart);
-    heartPop();
-    setTimeout(()=>heart.remove(),4000);
-  },250);
-});
-</script>
+    })();
+  </script>
 
 </body>
 </html>
