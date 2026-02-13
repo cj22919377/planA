@@ -167,13 +167,13 @@ noBtn.addEventListener("click", () => {
 yesBtn.addEventListener("click", () => {
   popSound();
   buttons.remove();
-  text.textContent = "you're the loml now!! 💕";
+  text.textContent = "i love youuu !!";
 
   setInterval(() => {
     const heart = document.createElement("div");
     heart.className = "heart";
 
-    const hearts = ["💖","💗","🩷"];
+    const hearts = ["💖","💗","🩷","💝","💕"];
     heart.textContent = hearts[Math.floor(Math.random() * hearts.length)];
 
     const rotation = Math.random() * 240 - 120; // -120° to +120°
