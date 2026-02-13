@@ -1,128 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>planA</title>
+<style>
+*{box-sizing:border-box;font-family:'Segoe UI',sans-serif;margin:0;padding:0;}
+
+body{
+  height:100vh;
+  background:linear-gradient(135deg,#ff9eb5,#ffc2d1);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+}
+
+/* ===== LOADER ===== */
+#loader{
+  position:fixed;
+  width:100%;
+  height:100%;
+  background:linear-gradient(135deg,#ff9eb5,#ffc2d1);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
+  transition:opacity .8s ease, visibility .8s ease;
+}
+
+.loader-content{
+  text-align:center;
+  color:white;
+  font-size:1.4rem;
+}
+
+.heart-loader{
+  font-size:3rem;
+  animation:pulse 1s infinite alternate;
+}
+
+@keyframes pulse{
+  from{transform:scale(1);}
+  to{transform:scale(1.3);}
+}
+
+/* ===== MAIN CONTAINER ===== */
+.container{
+  text-align:center;
+  padding:30px;
+  background:rgba(255,255,255,0.25);
+  backdrop-filter:blur(12px);
+  border-radius:24px;
+  box-shadow:0 10px 40px rgba(0,0,0,0.15);
+  width:320px;
+  transition:.4s ease;
+}
+
+h1{
+  font-size:1.8rem;
+  margin-bottom:40px;
+  color:#fff;
+  text-shadow:0 4px 10px rgba(0,0,0,0.2);
+}
+
+.buttons{
+  position:relative;
+  height:220px;
+  transition:.4s ease;
+}
+
+button{
+  padding:14px 28px;
+  font-size:1.05rem;
+  border:none;
+  border-radius:16px;
+  cursor:pointer;
+  position:absolute;
+  transition:all .35s cubic-bezier(.2,.8,.2,1);
+  outline:none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:active{
+  transform:scale(.92);
+}
+
+#yesBtn{
+  background:#ff4d6d;
+  color:white;
+  left:50%;
+  top:20px;
+  transform:translateX(-50%);
+  box-shadow:0 6px 20px rgba(255,77,109,.5);
+  animation:glow 2s infinite alternate;
+}
+
+@keyframes glow{
+  from{box-shadow:0 0 10px #ff4d6d}
+  to{box-shadow:0 0 25px #ff4d6d}
+}
+
+#noBtn{
+  background:#444;
+  color:white;
+  left:50%;
+  top:120px;
+  transform:translateX(-50%);
+}
+
+/* ===== HEARTS ===== */
+.heart{
+  position:fixed;
+  bottom:-20px;
+  animation:floatUp 4s linear forwards;
+  pointer-events:none;
+}
+
+@keyframes floatUp{
+  from{
+    transform:translateY(0) scale(1) rotate(var(--rot));
+    opacity:1
+  }
+  to{
+    transform:translateY(-100vh) scale(1.5) rotate(var(--rot));
+    opacity:0
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- LOADER -->
+<div id="loader">
+  <div class="loader-content">
+    <div class="heart-loader">💖</div>
+    <p>Loading love...</p>
+  </div>
+</div>
+
+<!-- MAIN UI -->
+<div class="container" id="mainUI" style="display:none;">
+  <h1 id="text">Will you be my Valentine? 💖</h1>
+  <div class="buttons" id="buttons">
+    <button id="yesBtn">Yes</button>
+    <button id="noBtn">No</button>
+  </div>
+</div>
+
+<!-- AUDIO -->
+<audio id="bgMusic" loop></audio>
+<audio id="noSound"></audio>
+<audio id="yesSound"></audio>
+
 <script>
-const yesBtn = document.getElementById("yesBtn");
-const noBtn = document.getElementById("noBtn");
-const buttons = document.getElementById("buttons");
-const text = document.getElementById("text");
+window.addEventListener("DOMContentLoaded", function(){
 
-const bgMusic = document.getElementById("bgMusic");
-const noSound = document.getElementById("noSound");
-const yesSound = document.getElementById("yesSound");
+  const loader = document.getElementById("loader");
+  const mainUI = document.getElementById("mainUI");
+  const text = document.getElementById("text");
+  const buttons = document.getElementById("buttons");
+  const yesBtn = document.getElementById("yesBtn");
+  const noBtn = document.getElementById("noBtn");
 
-/* ===== YOUR GITHUB RAW LINKS ===== */
-bgMusic.src = "https://raw.githubusercontent.com/cj22919377/planA/main/romantic.mp3";
-noSound.src = "https://raw.githubusercontent.com/cj22919377/planA/main/no.mp3";
-yesSound.src = "https://raw.githubusercontent.com/cj22919377/planA/main/yes.mp3";
+  const bgMusic = document.getElementById("bgMusic");
+  const noSound = document.getElementById("noSound");
+  const yesSound = document.getElementById("yesSound");
 
-/* ===== SETTINGS ===== */
-bgMusic.loop = true;        // 🔁 LOOP FOREVER
-bgMusic.volume = 0.6;
-noSound.volume = 0.7;
-yesSound.volume = 0.8;
+  /* ===== AUDIO LINKS ===== */
+  bgMusic.src = "https://raw.githubusercontent.com/cj22919377/planA/main/romantic.mp3";
+  noSound.src = "https://raw.githubusercontent.com/cj22919377/planA/main/no.mp3";
+  yesSound.src = "https://raw.githubusercontent.com/cj22919377/planA/main/yes.mp3";
 
-let yesScale = 1;
-let musicStarted = false;
+  bgMusic.loop = true;
+  bgMusic.volume = 0.6;
+  noSound.volume = 0.7;
+  yesSound.volume = 0.8;
 
-/* ===== Start Music On First Interaction ===== */
-function startMusic(){
-  if(!musicStarted){
+  /* ===== LOADING SCREEN 5s ===== */
+  setTimeout(()=>{
+    loader.style.opacity = "0";
+    loader.style.visibility = "hidden";
+    mainUI.style.display = "block";
+
+    // Start background music
     bgMusic.play().catch(()=>{});
-    musicStarted = true;
-  }
-}
 
-document.addEventListener("click", startMusic, { once:true });
-document.addEventListener("touchstart", startMusic, { once:true });
+  },5000);
 
-/* ===== No Button Text Cycle ===== */
-const noTexts = [
-  "whyy","nope","try again","theres no other choice",
-  "you cant get away from this","haha nope",
-  "are u kidding me","fine...","SIKE",
-  "whatever","choose yess"
-];
-let noIndex = 0;
+  /* ===== NO BUTTON TEXT CYCLE ===== */
+  const noTexts = [
+    "whyy","nope","try again","theres no other choice",
+    "you cant get away from this","haha nope",
+    "are u kidding me","fine...","SIKE",
+    "whatever","choose yess"
+  ];
+  let noIndex = 0;
+  let yesScale = 1;
 
-/* ===== Heart Pop Sound ===== */
-function heartPop(){
-  const ctx = new (window.AudioContext||window.webkitAudioContext)();
-  const osc = ctx.createOscillator();
-  const gain = ctx.createGain();
-
-  osc.type="sine";
-  osc.frequency.setValueAtTime(600,ctx.currentTime);
-  osc.frequency.exponentialRampToValueAtTime(200,ctx.currentTime+.15);
-
-  gain.gain.setValueAtTime(.2,ctx.currentTime);
-  gain.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+.15);
-
-  osc.connect(gain);
-  gain.connect(ctx.destination);
-
-  osc.start();
-  osc.stop(ctx.currentTime+.15);
-}
-
-/* ===== NO BUTTON ===== */
-noBtn.addEventListener("click", () => {
-
-  noSound.currentTime = 0;
-  noSound.play();
-
-  noBtn.textContent = noTexts[noIndex];
-  noIndex = (noIndex + 1) % noTexts.length;
-
-  yesScale = Math.min(yesScale + .15, 2);
-  yesBtn.style.transform = `translateX(-50%) scale(${yesScale})`;
-
-  const area = buttons.getBoundingClientRect();
-  const noRect = noBtn.getBoundingClientRect();
-  const yesRect = yesBtn.getBoundingClientRect();
-
-  let x,y,safe=false;
-
-  while(!safe){
-    x = Math.random()*(area.width-noRect.width);
-    y = Math.random()*(area.height-noRect.height);
-
-    const overlap =
-      x < (yesRect.left-area.left+yesRect.width) &&
-      x+noRect.width > (yesRect.left-area.left) &&
-      y < (yesRect.top-area.top+yesRect.height) &&
-      y+noRect.height > (yesRect.top-area.top);
-
-    if(!overlap) safe=true;
+  /* ===== HEART POP SOUND ===== */
+  function heartPop(){
+    try{
+      const ctx = new (window.AudioContext||window.webkitAudioContext)();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type="sine";
+      osc.frequency.setValueAtTime(600,ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(200,ctx.currentTime+.15);
+      gain.gain.setValueAtTime(.2,ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+.15);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime+.15);
+    }catch(e){}
   }
 
-  noBtn.style.left = x+"px";
-  noBtn.style.top = y+"px";
-});
+  /* ===== NO BUTTON ===== */
+  noBtn.addEventListener("click",()=>{
+    noSound.play().catch(()=>{});
+    noBtn.textContent = noTexts[noIndex];
+    noIndex = (noIndex+1)%noTexts.length;
 
-/* ===== YES BUTTON ===== */
-yesBtn.addEventListener("click", () => {
+    yesScale = Math.min(yesScale+0.15,2);
+    yesBtn.style.transform = `translateX(-50%) scale(${yesScale})`;
 
-  yesSound.currentTime = 0;
-  yesSound.play();
+    const area = buttons.getBoundingClientRect();
+    const noRect = noBtn.getBoundingClientRect();
+    const yesRect = yesBtn.getBoundingClientRect();
+    let x,y,safe=false;
 
-  buttons.style.opacity=0;
-  setTimeout(()=>buttons.remove(),400);
+    while(!safe){
+      x=Math.random()*(area.width-noRect.width);
+      y=Math.random()*(area.height-noRect.height);
+      const overlap = x<(yesRect.left-area.left+yesRect.width) &&
+                      x+noRect.width>(yesRect.left-area.left) &&
+                      y<(yesRect.top-area.top+yesRect.height) &&
+                      y+noRect.height>(yesRect.top-area.top);
+      if(!overlap) safe=true;
+    }
+    noBtn.style.left=x+"px";
+    noBtn.style.top=y+"px";
+  });
 
-  text.textContent="i love youuu !! 💞";
+  /* ===== YES BUTTON ===== */
+  yesBtn.addEventListener("click",()=>{
+    yesSound.play().catch(()=>{});
+    buttons.style.opacity=0;
+    setTimeout(()=>buttons.remove(),400);
+    text.textContent="i love youuu !! 💞";
 
-  setInterval(()=>{
-    const heart=document.createElement("div");
-    heart.className="heart";
+    setInterval(()=>{
+      const heart=document.createElement("div");
+      heart.className="heart";
+      const hearts=["💖","💗","💝","💕"];
+      heart.textContent=hearts[Math.floor(Math.random()*hearts.length)];
+      heart.style.setProperty("--rot",(Math.random()*240-120)+"deg");
+      heart.style.left=Math.random()*100+"vw";
+      heart.style.fontSize=20+Math.random()*20+"px";
+      document.body.appendChild(heart);
+      heartPop();
+      setTimeout(()=>heart.remove(),4000);
+    },250);
+  });
 
-    const hearts=["💖","💗","🩷","💝","💕"];
-    heart.textContent=hearts[Math.floor(Math.random()*hearts.length)];
-
-    heart.style.setProperty("--rot",(Math.random()*240-120)+"deg");
-    heart.style.left=Math.random()*100+"vw";
-    heart.style.fontSize=20+Math.random()*20+"px";
-
-    document.body.appendChild(heart);
-    heartPop();
-
-    setTimeout(()=>heart.remove(),4000);
-  },250);
 });
 </script>
+
+</body>
+</html>
