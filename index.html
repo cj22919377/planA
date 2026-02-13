@@ -20,9 +20,7 @@ body{
   animation:fadeIn 1s ease forwards;
 }
 
-@keyframes fadeIn{
-  to{opacity:1;}
-}
+@keyframes fadeIn{to{opacity:1}}
 
 .container{
   text-align:center;
@@ -32,7 +30,7 @@ body{
   border-radius:24px;
   box-shadow:0 10px 40px rgba(0,0,0,0.15);
   width:320px;
-  transition:all .4s ease;
+  transition:.4s ease;
 }
 
 h1{
@@ -45,6 +43,7 @@ h1{
 .buttons{
   position:relative;
   height:220px;
+  transition:.4s ease;
 }
 
 button{
@@ -55,6 +54,12 @@ button{
   cursor:pointer;
   position:absolute;
   transition:all .35s cubic-bezier(.2,.8,.2,1);
+  outline:none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:active{
+  transform:scale(.92);
 }
 
 #yesBtn{
@@ -64,10 +69,12 @@ button{
   top:20px;
   transform:translateX(-50%);
   box-shadow:0 6px 20px rgba(255,77,109,.5);
+  animation:glow 2s infinite alternate;
 }
 
-#yesBtn:hover{
-  transform:translateX(-50%) scale(1.08);
+@keyframes glow{
+  from{box-shadow:0 0 10px #ff4d6d}
+  to{box-shadow:0 0 25px #ff4d6d}
 }
 
 #noBtn{
@@ -108,11 +115,29 @@ button{
   </div>
 </div>
 
+<!-- AUDIO -->
+<audio id="bgMusic" loop></audio>
+<audio id="noSound"></audio>
+<audio id="yesSound"></audio>
+
 <script>
 const yesBtn = document.getElementById("yesBtn");
 const noBtn = document.getElementById("noBtn");
 const buttons = document.getElementById("buttons");
 const text = document.getElementById("text");
+
+const bgMusic = document.getElementById("bgMusic");
+const noSound = document.getElementById("noSound");
+const yesSound = document.getElementById("yesSound");
+
+// 🔥 PUT YOUR RAW GITHUB LINKS HERE
+bgMusic.src = "YOUR_ROMANTIC_SONG_LINK_HERE";
+noSound.src = "YOUR_NO_CLICK_SOUND_LINK_HERE";
+yesSound.src = "YOUR_YES_SOUND_LINK_HERE";
+
+bgMusic.volume = 0.6;
+noSound.volume = 0.7;
+yesSound.volume = 0.8;
 
 let yesScale = 1;
 
@@ -124,32 +149,38 @@ const noTexts = [
 ];
 let noIndex = 0;
 
-/* Softer pop sound */
-function popSound(){
-  const ctx = new (window.AudioContext || window.webkitAudioContext)();
+/* Start music on first interaction */
+document.body.addEventListener("click", () => {
+  if(bgMusic.paused){
+    bgMusic.play();
+  }
+},{ once:true });
+
+/* Soft pop for hearts */
+function heartPop(){
+  const ctx = new (window.AudioContext||window.webkitAudioContext)();
   const osc = ctx.createOscillator();
   const gain = ctx.createGain();
-
-  osc.type = "sine";
-  osc.frequency.setValueAtTime(600, ctx.currentTime);
-  osc.frequency.exponentialRampToValueAtTime(200, ctx.currentTime + 0.15);
-
-  gain.gain.setValueAtTime(0.25, ctx.currentTime);
-  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
-
+  osc.type="sine";
+  osc.frequency.setValueAtTime(600,ctx.currentTime);
+  osc.frequency.exponentialRampToValueAtTime(200,ctx.currentTime+.15);
+  gain.gain.setValueAtTime(.2,ctx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+.15);
   osc.connect(gain);
   gain.connect(ctx.destination);
-
   osc.start();
-  osc.stop(ctx.currentTime + 0.15);
+  osc.stop(ctx.currentTime+.15);
 }
 
 noBtn.addEventListener("click", () => {
 
+  noSound.currentTime = 0;
+  noSound.play();
+
   noBtn.textContent = noTexts[noIndex];
   noIndex = (noIndex + 1) % noTexts.length;
 
-  yesScale = Math.min(yesScale + 0.15, 2);
+  yesScale = Math.min(yesScale + .15, 2);
   yesBtn.style.transform = `translateX(-50%) scale(${yesScale})`;
 
   const area = buttons.getBoundingClientRect();
@@ -159,48 +190,45 @@ noBtn.addEventListener("click", () => {
   let x,y,safe=false;
 
   while(!safe){
-    x = Math.random() * (area.width - noRect.width);
-    y = Math.random() * (area.height - noRect.height);
+    x = Math.random()*(area.width-noRect.width);
+    y = Math.random()*(area.height-noRect.height);
 
     const overlap =
-      x < (yesRect.left - area.left + yesRect.width) &&
-      x + noRect.width > (yesRect.left - area.left) &&
-      y < (yesRect.top - area.top + yesRect.height) &&
-      y + noRect.height > (yesRect.top - area.top);
+      x < (yesRect.left-area.left+yesRect.width) &&
+      x+noRect.width > (yesRect.left-area.left) &&
+      y < (yesRect.top-area.top+yesRect.height) &&
+      y+noRect.height > (yesRect.top-area.top);
 
     if(!overlap) safe=true;
   }
 
-  /* smooth animated move */
-  noBtn.style.left = x + "px";
-  noBtn.style.top = y + "px";
+  noBtn.style.left = x+"px";
+  noBtn.style.top = y+"px";
 });
 
 yesBtn.addEventListener("click", () => {
-  buttons.style.opacity = 0;
+
+  yesSound.currentTime = 0;
+  yesSound.play();
+  bgMusic.pause();
+
+  buttons.style.opacity=0;
   setTimeout(()=>buttons.remove(),400);
 
-  text.textContent = "i love youuu !! 💞";
-  popSound();
+  text.textContent="i love youuu !! 💞";
 
-  setInterval(() => {
-    const heart = document.createElement("div");
-    heart.className = "heart";
-
-    const hearts = ["💖","💗","🩷","💝","💕"];
-    heart.textContent = hearts[Math.floor(Math.random() * hearts.length)];
-
-    const rotation = Math.random() * 240 - 120;
-    heart.style.setProperty("--rot", rotation + "deg");
-
-    heart.style.left = Math.random() * 100 + "vw";
-    heart.style.fontSize = 20 + Math.random() * 20 + "px";
-
+  setInterval(()=>{
+    const heart=document.createElement("div");
+    heart.className="heart";
+    const hearts=["💖","💗","🩷","💝","💕"];
+    heart.textContent=hearts[Math.floor(Math.random()*hearts.length)];
+    heart.style.setProperty("--rot",(Math.random()*240-120)+"deg");
+    heart.style.left=Math.random()*100+"vw";
+    heart.style.fontSize=20+Math.random()*20+"px";
     document.body.appendChild(heart);
-    popSound();
-
-    setTimeout(() => heart.remove(), 4000);
-  }, 250);
+    heartPop();
+    setTimeout(()=>heart.remove(),4000);
+  },250);
 });
 </script>
 
