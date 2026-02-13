@@ -6,56 +6,75 @@
 <title>planA</title>
 
 <style>
-*{box-sizing:border-box;font-family:Arial,sans-serif}
+*{box-sizing:border-box;font-family:'Segoe UI',sans-serif}
 
 body{
   margin:0;
   height:100vh;
-  background:#ffb6c1;
+  background:linear-gradient(135deg,#ff9eb5,#ffc2d1);
   display:flex;
   align-items:center;
   justify-content:center;
   overflow:hidden;
+  opacity:0;
+  animation:fadeIn 1s ease forwards;
+}
+
+@keyframes fadeIn{
+  to{opacity:1;}
 }
 
 .container{
   text-align:center;
-  width:100%;
-  padding:20px;
+  padding:30px;
+  background:rgba(255,255,255,0.25);
+  backdrop-filter:blur(12px);
+  border-radius:24px;
+  box-shadow:0 10px 40px rgba(0,0,0,0.15);
+  width:320px;
+  transition:all .4s ease;
 }
 
 h1{
-  font-size:2rem;
+  font-size:1.8rem;
   margin-bottom:40px;
+  color:#fff;
+  text-shadow:0 4px 10px rgba(0,0,0,0.2);
 }
 
 .buttons{
   position:relative;
-  height:260px;
+  height:220px;
 }
 
 button{
   padding:14px 28px;
-  font-size:1.1rem;
+  font-size:1.05rem;
   border:none;
-  border-radius:14px;
+  border-radius:16px;
   cursor:pointer;
   position:absolute;
+  transition:all .35s cubic-bezier(.2,.8,.2,1);
 }
 
 #yesBtn{
   background:#ff4d6d;
   color:white;
   left:50%;
-  top:30px;
+  top:20px;
   transform:translateX(-50%);
+  box-shadow:0 6px 20px rgba(255,77,109,.5);
+}
+
+#yesBtn:hover{
+  transform:translateX(-50%) scale(1.08);
 }
 
 #noBtn{
-  background:#555;
+  background:#444;
   color:white;
   left:50%;
-  top:140px;
+  top:120px;
   transform:translateX(-50%);
 }
 
@@ -97,57 +116,49 @@ const text = document.getElementById("text");
 
 let yesScale = 1;
 
-// No button text cycle
 const noTexts = [
-  "whyy",
-  "nope",
-  "try again",
-  "theres no other choice",
-  "you cant get away from this",
-  "haha nope",
-  "are u kidding me",
-  "fine...",
-  "SIKE",
-  "whatever",
-  "choose yess"
+  "whyy","nope","try again","theres no other choice",
+  "you cant get away from this","haha nope",
+  "are u kidding me","fine...","SIKE",
+  "whatever","choose yess"
 ];
 let noIndex = 0;
 
-// pop sound (no file)
+/* Softer pop sound */
 function popSound(){
   const ctx = new (window.AudioContext || window.webkitAudioContext)();
   const osc = ctx.createOscillator();
   const gain = ctx.createGain();
 
-  osc.type = "square";
-  osc.frequency.value = 500;
-  gain.gain.value = 0.15;
+  osc.type = "sine";
+  osc.frequency.setValueAtTime(600, ctx.currentTime);
+  osc.frequency.exponentialRampToValueAtTime(200, ctx.currentTime + 0.15);
+
+  gain.gain.setValueAtTime(0.25, ctx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
 
   osc.connect(gain);
   gain.connect(ctx.destination);
 
   osc.start();
-  osc.stop(ctx.currentTime + 0.08);
+  osc.stop(ctx.currentTime + 0.15);
 }
 
 noBtn.addEventListener("click", () => {
-  popSound();
 
-  // change NO text
   noBtn.textContent = noTexts[noIndex];
   noIndex = (noIndex + 1) % noTexts.length;
 
-  // grow YES
   yesScale = Math.min(yesScale + 0.15, 2);
   yesBtn.style.transform = `translateX(-50%) scale(${yesScale})`;
 
   const area = buttons.getBoundingClientRect();
-  const yesRect = yesBtn.getBoundingClientRect();
   const noRect = noBtn.getBoundingClientRect();
+  const yesRect = yesBtn.getBoundingClientRect();
 
-  let x, y, safe = false;
+  let x,y,safe=false;
 
-  while (!safe) {
+  while(!safe){
     x = Math.random() * (area.width - noRect.width);
     y = Math.random() * (area.height - noRect.height);
 
@@ -157,17 +168,20 @@ noBtn.addEventListener("click", () => {
       y < (yesRect.top - area.top + yesRect.height) &&
       y + noRect.height > (yesRect.top - area.top);
 
-    if (!overlap) safe = true;
+    if(!overlap) safe=true;
   }
 
+  /* smooth animated move */
   noBtn.style.left = x + "px";
   noBtn.style.top = y + "px";
 });
 
 yesBtn.addEventListener("click", () => {
+  buttons.style.opacity = 0;
+  setTimeout(()=>buttons.remove(),400);
+
+  text.textContent = "i love youuu !! 💞";
   popSound();
-  buttons.remove();
-  text.textContent = "i love youuu !!";
 
   setInterval(() => {
     const heart = document.createElement("div");
@@ -176,15 +190,17 @@ yesBtn.addEventListener("click", () => {
     const hearts = ["💖","💗","🩷","💝","💕"];
     heart.textContent = hearts[Math.floor(Math.random() * hearts.length)];
 
-    const rotation = Math.random() * 240 - 120; // -120° to +120°
+    const rotation = Math.random() * 240 - 120;
     heart.style.setProperty("--rot", rotation + "deg");
 
     heart.style.left = Math.random() * 100 + "vw";
     heart.style.fontSize = 20 + Math.random() * 20 + "px";
 
     document.body.appendChild(heart);
+    popSound();
+
     setTimeout(() => heart.remove(), 4000);
-  }, 200);
+  }, 250);
 });
 </script>
 
